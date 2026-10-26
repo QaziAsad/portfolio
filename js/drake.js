@@ -119,71 +119,38 @@
   }
 
   var form = document.getElementById("contactForm");
+  var gmailDraft = document.getElementById("gmailDraft");
   form.addEventListener("submit", function (event) {
     event.preventDefault();
     var data = new FormData(form);
     var note = document.getElementById("formNote");
-    var send = form.querySelector(".send");
     var subject = data.get("subject") || "Portfolio enquiry";
-    send.disabled = true;
-    send.textContent = "Sending";
-    note.classList.remove("ok", "err");
-    note.textContent = "Sending your message...";
+    var lines = [
+      "Name: " + (data.get("name") || ""),
+      "Email: " + (data.get("email") || ""),
+      "Phone: " + (data.get("phone") || ""),
+      "",
+      data.get("message") || ""
+    ];
+    var url = "https://mail.google.com/mail/?view=cm&fs=1&to=" +
+      encodeURIComponent("qaziasad17@gmail.com") +
+      "&su=" + encodeURIComponent("Portfolio enquiry: " + subject) +
+      "&body=" + encodeURIComponent(lines.join("\n"));
 
-    function mailDraft() {
-      var lines = [
-        "Name: " + (data.get("name") || ""),
-        "Email: " + (data.get("email") || ""),
-        "Phone: " + (data.get("phone") || ""),
-        "",
-        data.get("message") || ""
-      ];
-      return "mailto:qaziasad17@gmail.com?subject=" +
-        encodeURIComponent("Portfolio enquiry: " + subject) +
-        "&body=" + encodeURIComponent(lines.join("\n"));
-    }
+    gmailDraft.href = url;
+    gmailDraft.click();
 
-    fetch("https://formsubmit.co/ajax/qaziasad17@gmail.com", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      },
-      body: JSON.stringify({
-        name: data.get("name") || "",
-        email: data.get("email") || "",
-        phone: data.get("phone") || "",
-        subject: subject,
-        message: data.get("message") || "",
-        _replyto: data.get("email") || "",
-        _subject: "Portfolio enquiry: " + subject,
-        _template: "table",
-        _captcha: "false"
-      })
-    }).then(function (response) {
-      return response.json().then(function (body) {
-        if (!response.ok || String(body.success) !== "true") {
-          var err = new Error(body.message || "Could not send");
-          err.formBody = body;
-          throw err;
-        }
-        form.reset();
-        note.textContent = "Sent. It will arrive at qaziasad17@gmail.com.";
-        note.classList.add("ok");
-      });
-    }).catch(function (error) {
-      var detail = error && error.message ? error.message : "";
-      if (/activ/i.test(detail)) {
-        note.textContent = "Almost there. Open qaziasad17@gmail.com, including Spam, and click the Activate Form link from FormSubmit once. After that, this form delivers to the inbox. A mail draft is open if you want to send this message now.";
-      } else {
-        note.textContent = "The form service did not accept this message. A mail draft is open so it can still be sent to qaziasad17@gmail.com.";
-      }
-      note.classList.add("err");
-      window.location.href = mailDraft();
-    }).then(function () {
-      send.disabled = false;
-      send.textContent = "Send message";
-    });
+    note.classList.remove("err");
+    note.classList.add("ok");
+    note.textContent = "";
+    note.appendChild(document.createTextNode("Gmail draft opened. Press Send in that tab, or "));
+    var link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = "open the draft";
+    note.appendChild(link);
+    note.appendChild(document.createTextNode("."));
   });
 
   var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;

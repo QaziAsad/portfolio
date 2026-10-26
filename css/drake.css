@@ -811,6 +811,7 @@ h1, h2, h3, h4, p { margin: 0; }
   cursor: pointer;
 }
 .form-note { grid-column: 1 / -1; font-size: 13px; }
+.form-note a { color: inherit; text-decoration: underline; }
 .form-note.ok { color: var(--green); }
 .form-note.err { color: #ffb4b4; }
 .send:disabled { opacity: 0.65; cursor: wait; }
