@@ -130,6 +130,19 @@
     note.classList.remove("ok", "err");
     note.textContent = "Sending your message...";
 
+    function mailDraft() {
+      var lines = [
+        "Name: " + (data.get("name") || ""),
+        "Email: " + (data.get("email") || ""),
+        "Phone: " + (data.get("phone") || ""),
+        "",
+        data.get("message") || ""
+      ];
+      return "mailto:qaziasad17@gmail.com?subject=" +
+        encodeURIComponent("Portfolio enquiry: " + subject) +
+        "&body=" + encodeURIComponent(lines.join("\n"));
+    }
+
     fetch("https://formsubmit.co/ajax/qaziasad17@gmail.com", {
       method: "POST",
       headers: {
@@ -142,14 +155,17 @@
         phone: data.get("phone") || "",
         subject: subject,
         message: data.get("message") || "",
+        _replyto: data.get("email") || "",
         _subject: "Portfolio enquiry: " + subject,
         _template: "table",
         _captcha: "false"
       })
     }).then(function (response) {
       return response.json().then(function (body) {
-        if (!response.ok || body.success === "false" || body.success === false) {
-          throw new Error(body.message || "Could not send");
+        if (!response.ok || String(body.success) !== "true") {
+          var err = new Error(body.message || "Could not send");
+          err.formBody = body;
+          throw err;
         }
         form.reset();
         note.textContent = "Sent. It will arrive at qaziasad17@gmail.com.";
@@ -158,11 +174,12 @@
     }).catch(function (error) {
       var detail = error && error.message ? error.message : "";
       if (/activ/i.test(detail)) {
-        note.textContent = "Check qaziasad17@gmail.com for an Activate Form email and click the link once. After that, messages arrive in the inbox.";
+        note.textContent = "Almost there. Open qaziasad17@gmail.com, including Spam, and click the Activate Form link from FormSubmit once. After that, this form delivers to the inbox. A mail draft is open if you want to send this message now.";
       } else {
-        note.textContent = (detail ? detail + " " : "") + "Email qaziasad17@gmail.com directly. Phone: +92-313-2700596";
+        note.textContent = "The form service did not accept this message. A mail draft is open so it can still be sent to qaziasad17@gmail.com.";
       }
       note.classList.add("err");
+      window.location.href = mailDraft();
     }).then(function () {
       send.disabled = false;
       send.textContent = "Send message";
