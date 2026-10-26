@@ -122,15 +122,51 @@
   form.addEventListener("submit", function (event) {
     event.preventDefault();
     var data = new FormData(form);
+    var note = document.getElementById("formNote");
+    var send = form.querySelector(".send");
     var subject = data.get("subject") || "Portfolio enquiry";
-    var body = [
-      "Name: " + (data.get("name") || ""),
-      "Email: " + (data.get("email") || ""),
-      "Phone: " + (data.get("phone") || ""),
-      "",
-      data.get("message") || ""
-    ].join("\n");
-    window.location.href = "mailto:qaziasad17@gmail.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    send.disabled = true;
+    send.textContent = "Sending";
+    note.classList.remove("ok", "err");
+    note.textContent = "Sending your message...";
+
+    fetch("https://formsubmit.co/ajax/qaziasad17@gmail.com", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify({
+        name: data.get("name") || "",
+        email: data.get("email") || "",
+        phone: data.get("phone") || "",
+        subject: subject,
+        message: data.get("message") || "",
+        _subject: "Portfolio enquiry: " + subject,
+        _template: "table",
+        _captcha: "false"
+      })
+    }).then(function (response) {
+      return response.json().then(function (body) {
+        if (!response.ok || body.success === "false" || body.success === false) {
+          throw new Error(body.message || "Could not send");
+        }
+        form.reset();
+        note.textContent = "Sent. It will arrive at qaziasad17@gmail.com.";
+        note.classList.add("ok");
+      });
+    }).catch(function (error) {
+      var detail = error && error.message ? error.message : "";
+      if (/activ/i.test(detail)) {
+        note.textContent = "Check qaziasad17@gmail.com for an Activate Form email and click the link once. After that, messages arrive in the inbox.";
+      } else {
+        note.textContent = (detail ? detail + " " : "") + "Email qaziasad17@gmail.com directly. Phone: +92-313-2700596";
+      }
+      note.classList.add("err");
+    }).then(function () {
+      send.disabled = false;
+      send.textContent = "Send message";
+    });
   });
 
   var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;

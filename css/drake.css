@@ -10,8 +10,8 @@
   --line: #565656;
   --text: #ffffff;
   --white: #ffffff;
-  --green: #28e98c;
-  --green-ink: #10281c;
+  --green: #c8f135;
+  --green-ink: #141a06;
   --muted: #ffffff;
   --side: 400px;
   --gap: 40px;
@@ -454,7 +454,7 @@ h1, h2, h3, h4, p { margin: 0; }
   padding: 28px 32px;
   transition: border-color 0.35s ease, transform 0.35s ease;
 }
-.service-row:hover { border-color: rgba(40, 233, 140, 0.55); transform: translateY(-4px); }
+.service-row:hover { border-color: color-mix(in srgb, var(--green) 55%, transparent); transform: translateY(-4px); }
 .service-row h3 { color: var(--white); font-size: 28px; font-weight: 500; }
 .service-row p { margin-top: 8px; max-width: 520px; }
 .service-row span {
@@ -605,7 +605,7 @@ h1, h2, h3, h4, p { margin: 0; }
 }
 .service h3, .project h3, .price h3 { color: var(--white); font-weight: 500; font-size: 24px; }
 .service p, .project p, .price .note { margin-top: 12px; }
-.service:hover, .project:hover, .price:hover { border-color: rgba(40, 233, 140, 0.55); }
+.service:hover, .project:hover, .price:hover { border-color: color-mix(in srgb, var(--green) 55%, transparent); }
 
 .skill-grid { grid-template-columns: repeat(3, 1fr); margin-top: 54px; justify-items: center; }
 .skill { text-align: center; }
@@ -691,12 +691,12 @@ h1, h2, h3, h4, p { margin: 0; }
 .project:hover h3 .fill,
 .project.show-hover h3 .fill { clip-path: inset(0 0 0 0); }
 .project:hover .tags li,
-.project.show-hover .tags li { border-color: rgba(40, 233, 140, 0.7); }
+.project.show-hover .tags li { border-color: color-mix(in srgb, var(--green) 70%, transparent); }
 .project-visual:after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 20% 10%, rgba(40, 233, 140, 0.28), transparent 58%);
+  background: radial-gradient(circle at 20% 10%, color-mix(in srgb, var(--green) 28%, transparent), transparent 58%);
   opacity: 0;
   transition: opacity 0.4s ease;
 }
@@ -811,6 +811,9 @@ h1, h2, h3, h4, p { margin: 0; }
   cursor: pointer;
 }
 .form-note { grid-column: 1 / -1; font-size: 13px; }
+.form-note.ok { color: var(--green); }
+.form-note.err { color: #ffb4b4; }
+.send:disabled { opacity: 0.65; cursor: wait; }
 
 @media (min-width: 1101px) and (max-height: 820px) {
   .profile-card { top: 12px; bottom: 12px; padding: 16px 16px 14px; }
