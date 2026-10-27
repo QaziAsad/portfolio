@@ -810,6 +810,13 @@ h1, h2, h3, h4, p { margin: 0; }
   padding: 14px 26px;
   cursor: pointer;
 }
+.honey {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
 .form-note { grid-column: 1 / -1; font-size: 13px; }
 .form-note a { color: inherit; text-decoration: underline; }
 .form-note.ok { color: var(--green); }

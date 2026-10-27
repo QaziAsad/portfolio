@@ -119,38 +119,67 @@
   }
 
   var form = document.getElementById("contactForm");
-  var gmailDraft = document.getElementById("gmailDraft");
+  var sendBtn = form.querySelector(".send");
   form.addEventListener("submit", function (event) {
     event.preventDefault();
     var data = new FormData(form);
     var note = document.getElementById("formNote");
+    if (data.get("_honey")) return;
+
     var subject = data.get("subject") || "Portfolio enquiry";
-    var lines = [
-      "Name: " + (data.get("name") || ""),
-      "Email: " + (data.get("email") || ""),
-      "Phone: " + (data.get("phone") || ""),
-      "",
-      data.get("message") || ""
-    ];
-    var url = "https://mail.google.com/mail/?view=cm&fs=1&to=" +
-      encodeURIComponent("qaziasad17@gmail.com") +
-      "&su=" + encodeURIComponent("Portfolio enquiry: " + subject) +
-      "&body=" + encodeURIComponent(lines.join("\n"));
+    var payload = {
+      name: data.get("name") || "",
+      email: data.get("email") || "",
+      phone: data.get("phone") || "Not given",
+      subject: subject,
+      message: data.get("message") || "",
+      _subject: "Portfolio enquiry: " + subject,
+      _template: "table",
+      _captcha: "false",
+      _replyto: data.get("email") || ""
+    };
 
-    gmailDraft.href = url;
-    gmailDraft.click();
+    sendBtn.disabled = true;
+    note.classList.remove("ok", "err");
+    note.textContent = "Sending…";
 
-    note.classList.remove("err");
-    note.classList.add("ok");
-    note.textContent = "";
-    note.appendChild(document.createTextNode("Gmail draft opened. Press Send in that tab, or "));
-    var link = document.createElement("a");
-    link.href = url;
-    link.target = "_blank";
-    link.rel = "noopener";
-    link.textContent = "open the draft";
-    note.appendChild(link);
-    note.appendChild(document.createTextNode("."));
+    fetch("https://formsubmit.co/ajax/qaziasad17@gmail.com", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(function (response) {
+        return response.json().then(function (body) {
+          return { ok: response.ok, body: body || {} };
+        });
+      })
+      .then(function (result) {
+        var message = (result.body && result.body.message) || "";
+        if (/activat/i.test(message)) {
+          note.classList.remove("err");
+          note.classList.add("ok");
+          note.textContent = "Check qaziasad17@gmail.com and click the FormSubmit activation link once. After that, every message lands in that inbox.";
+          return;
+        }
+        if (!result.ok || String(result.body && result.body.success) === "false") {
+          throw new Error(message || "Could not send");
+        }
+        form.reset();
+        note.classList.remove("err");
+        note.classList.add("ok");
+        note.textContent = "Message sent. It will show up in the Gmail inbox.";
+      })
+      .catch(function () {
+        note.classList.remove("ok");
+        note.classList.add("err");
+        note.textContent = "Could not send just now. Email qaziasad17@gmail.com directly, or try again.";
+      })
+      .then(function () {
+        sendBtn.disabled = false;
+      });
   });
 
   var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
